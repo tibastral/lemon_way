@@ -1,3 +1,4 @@
+__Caution : Still under developpement and subject to changes__ 
 # LemonWay
 
 Ruby API client to query LemonWay web merchant and blank label APIs
