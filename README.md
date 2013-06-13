@@ -1,6 +1,8 @@
 # LemonWay
 
-TODO: Write a gem description
+Ruby API client to query LemonWay web merchant and blank label APIs
+
+Documentation at http://rubydoc.info/github/Paymium/lemon_way
 
 ## Installation
 
@@ -18,7 +20,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+LemonWay::Client::BlankLabel.init   wl_login: "test",
+                                    wl_pass: "test",
+                                    wl_pdv: "test",
+                                    language: "fr",
+                                    version: "1.0"
+
+LemonWay::Client::BlankLabel.register_wallet my_hash
+```
+
 
 ## Contributing
 
