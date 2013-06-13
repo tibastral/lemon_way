@@ -12,9 +12,7 @@ module LemonWay
       class Error < Exception ; end
 
       def init(opts={})
-        opts.symbolize_keys!
-        self.base_uri opts.delete(:base_uri)
-        self.default_attributes =  opts
+        #stub
       end
 
       def make_body(method_name, attrs={})
@@ -88,6 +86,12 @@ module LemonWay
       include HTTParty
 
       format :xml
+
+      def init(opts={})
+        camelize_and_ensure_keys! opts.symbolize_keys!, %i(baseUri wlLogin wlPass wlPDV version), %i(language channel walletIp)
+        self.base_uri opts.delete(:baseUri)
+        self.default_attributes =  opts
+      end
 
       def register_wallet attrs, &block
         camelize_and_ensure_keys! attrs, %i(wallet clientMail clientTitle clientFirstName clientLastName), %i(clientTitle clientHandset)

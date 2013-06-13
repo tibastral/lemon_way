@@ -24,7 +24,7 @@ Or install it yourself as:
 ```ruby
 LemonWay::Client::BlankLabel.init   wl_login: "test",
                                     wl_pass: "test",
-                                    wl_pdv: "test",
+                                    wl_PDV: "test",
                                     language: "fr",
                                     version: "1.0"
 

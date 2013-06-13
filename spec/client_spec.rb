@@ -19,6 +19,19 @@ describe LemonWay::Client::BlankLabel do
     #subject.unstub!
     WebMock.reset!
   end
+  context "init" do
+    it "should accept underscored keys" do
+      params = @default_params.dup
+      params.delete(:wlLogin)
+      params[:wl_login] = "test"
+      subject.init params.merge(:base_uri => @base_uri)
+      subject.default_attributes.should have_key(:wlLogin)
+    end
+    it "should accept string keys" do
+      subject.init @default_params.stringify_keys.merge(:base_uri => @base_uri)
+      subject.default_attributes.should have_key(:wlLogin)
+    end
+  end
 
   context "LemonWay::Client::Base methods" do
 
