@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe LemonWay::Client::BlankLabel do
+describe LemonWay::Client::WhiteLabel do
   before  do
     @base_uri = "http://api.lemonway.com"
 
@@ -47,14 +47,19 @@ describe LemonWay::Client::BlankLabel do
         @xml.should include("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
       end
 
-      it "should wrap all params into a a tag method_name" do
+      it "should wrap attrs into a a tag method_name" do
         attrs = Hash.from_xml(@xml)
         attrs.should have_key(@method_name)
 
-        @params.merge(@default_params).each do |k,v|
+        @params.each do |k,v|
           attrs[@method_name].should have_key(k.to_s)
           attrs[@method_name][k.to_s].should eq(v)
         end
+      end
+    end
+    context "define_query_method" do
+      it "should add default_attributes to attrs arguments" do
+
       end
     end
     context "query" do
@@ -87,30 +92,35 @@ describe LemonWay::Client::BlankLabel do
 
     end
     context "camelize_and_ensure_keys!"  do
+      def camelize_and_ensure_keys!(attrs, required_attrs=[], optional_attrs=[])
+        subject.camelize_and_ensure_keys! attrs.update(@default_params), required_attrs, optional_attrs
+      end
       it "should raise error" do
         proc{
-          subject.camelize_and_ensure_keys!({:id => 1}, %i(id wallet))
+          camelize_and_ensure_keys!({:id => 1}, %i(id wallet))
+          #subject.camelize_and_ensure_keys!()
         }.should raise_error(ArgumentError)
       end
       it "should raise error if an attribute has not a valid key" do
         proc{
-          subject.camelize_and_ensure_keys!({:id => 1, :walet => 2}, %i(id wallet))
+          camelize_and_ensure_keys!({:id => 1, :walet => 2}, %i(id wallet))
+          #subject.camelize_and_ensure_keys!(@default_params.merge(:id => 1, :walet => 2), %i(id wallet))
         }.should raise_error(ArgumentError)
       end
       it "should not raise error if all required attributes are present" do
         proc{
-          subject.camelize_and_ensure_keys!({:id => 1, :wallet => 2}, %i(id wallet))
+          camelize_and_ensure_keys!({:id => 1, :wallet => 2}, %i(id wallet))
         }.should_not raise_error
       end
       it "should raise error if an additional attribute is passed" do
         proc{
-          subject.camelize_and_ensure_keys!({:id => 1, :wallet => 2, :wid => 2}, %i(id wallet))
+          camelize_and_ensure_keys!({:id => 1, :wallet => 2, :wid => 2}, %i(id wallet))
         }.should raise_error(ArgumentError)
       end
       it "should camelize_keys" do
         attrs = {:id => 1, :first_name => 2}
         proc{
-          subject.camelize_and_ensure_keys!(attrs, %i(id firstName))
+          camelize_and_ensure_keys!(attrs, %i(id firstName))
           attrs.should have_key(:firstName)
         }.should_not raise_error
       end
@@ -136,7 +146,8 @@ describe LemonWay::Client::BlankLabel do
             attrs["RegisterWallet"][k.to_s].should eq(v)
           end
         end.to_return :status => 200, :body => fixture_file("register_wallet_success.xml")
-        subject.register_wallet params
+        wallet_id = subject.register_wallet params
+        wallet_id.should == "12345"
       end
     end
 

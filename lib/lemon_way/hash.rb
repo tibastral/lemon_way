@@ -23,16 +23,19 @@ class Hash
   #
   #   { :firstName => "Rob", :yearsOld => "28" }.underscore_keys
   #   #=> { :first_name => 'Rob', :years_old => '28' }
-  def underscore_keys
-    dup.underscore_keys!
+  def underscore_keys(recursive=false)
+    dup.underscore_keys!(recursive)
   end
 
   # Destructively underscore all keys. Same as
   # +underscore_keys+, but modifies +self+.
-  def underscore_keys!
+  def underscore_keys!(recursive=false)
     keys.each do |key|
       new_key = key.to_s.underscore
-      self[key.is_a?(Symbol) ? new_key.to_sym : new_key] = delete(key)
+      new_value = delete(key)
+      new_value.underscore_keys!(recursive) if recursive and new_value.is_a? Hash
+      new_value.map{|v| v.underscore_keys!(recursive) if v.is_a? Hash } if recursive and new_value.is_a? Array
+      self[key.is_a?(Symbol) ? new_key.to_sym : new_key] = new_value
     end
     self
   end
