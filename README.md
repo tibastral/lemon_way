@@ -22,14 +22,23 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-LemonWay::Client::BlankLabel.init   wl_login: "test",
+LemonWay::Client::WhiteLabel.init   wl_login: "test",
                                     wl_pass: "test",
                                     wl_PDV: "test",
                                     language: "fr",
                                     version: "1.0"
 
-LemonWay::Client::BlankLabel.register_wallet my_hash
+LemonWay::Client::WhiteLabel.register_wallet my_hash
 ```
+
+See [this page](http://rubydoc.info/github/Paymium/lemon_way/LemonWay/Client/WhiteLabel) page for details.
+
+
+## TODO
+
+1. Complete the doc
+2. Test with VCR
+3. Build WebMerchant client
 
 
 ## Contributing
