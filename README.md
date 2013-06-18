@@ -31,10 +31,10 @@ LemonWay::Client::WhiteLabel.init   wl_login: "test",
 LemonWay::Client::WhiteLabel.register_wallet my_hash
 ```
 
-See [this page](http://rubydoc.info/github/Paymium/lemon_way/LemonWay/Client/WhiteLabel) page for details.
+See [this page](http://rubydoc.info/github/Paymium/lemon_way/LemonWay/Client/WhiteLabel) for details.
 
 
-## TODO
+## Todo
 
 1. Complete the doc
 2. Test with VCR
