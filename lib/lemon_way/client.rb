@@ -12,7 +12,7 @@ module LemonWay
       class Error < Exception ; end
 
       def init(opts={})
-        camelize_and_ensure_keys! opts.symbolize_keys!, %i(baseUri)
+        opts.symbolize_keys!.camelize_keys!.ensure_keys %i(baseUri), required_default_attributes + optional_default_attributes
         self.base_uri opts.delete(:baseUri)
         self.default_attributes =  opts
       end
