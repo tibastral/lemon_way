@@ -9,7 +9,14 @@ module LemonWay
 
       attr_accessor :default_attributes, :required_default_attributes, :optional_default_attributes
 
-      class Error < Exception ; end
+      class Error < Exception
+        attr_reader :code
+
+        def initialize(code)
+          @code = code
+        end
+
+      end
 
       def init(opts={})
         opts.symbolize_keys!.camelize_keys!.ensure_keys %i(baseUri), required_default_attributes + optional_default_attributes
@@ -21,18 +28,28 @@ module LemonWay
         options = {}
         options[:builder] = Builder::XmlMarkup.new(:indent => 2)
         options[:builder].instruct!
-        options[:builder].__send__(:method_missing, method_name, xmlns: "Service") do
-          attrs.each do |key, value|
-            ActiveSupport::XmlMini.to_tag(key, value, options)
+        options[:builder].tag! "soap12:Envelope",
+                               "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+                               "xmlns:xsd"=>"http://www.w3.org/2001/XMLSchema",
+                               "xmlns:soap12"=>"http://www.w3.org/2003/05/soap-envelope" do
+          options[:builder].tag! "soap12:Body" do
+            options[:builder].__send__(:method_missing, method_name, xmlns: "Service_mb") do
+              attrs.each do |key, value|
+                ActiveSupport::XmlMini.to_tag(key, value, options)
+              end
+            end
           end
         end
       end
 
       def query(type, method, attrs={})
-        response_body = send(type, "/", :body => make_body(method, attrs)) || {}
-        response_body = response_body.with_indifferent_access.underscore_keys(true)
+        response = send(type, "", :body => make_body(method, attrs), :format => :xml, :headers => {'Content-type' => 'text/xml'}) || {}
+
+        response_body = Hash.from_xml(response.body.gsub("xmlns=\"Service_mb\"",''))["Envelope"]["Body"]["#{method}Response"]["#{method}Result"]
+        response_body = Hash.from_xml(response_body).with_indifferent_access.underscore_keys(true)
+
         if response_body.has_key?("e")
-          raise Error.new ["error", response_body["e"]["code"], ':', response_body["e"]["msg"], response_body["e"]["prio"]].join(' ')
+          raise Error.new(response_body["e"]["code"].to_i), response_body["e"]["msg"]
         else
           if block_given?
             yield(response_body)
@@ -48,9 +65,19 @@ module LemonWay
 
       module_eval do
         def define_query_method name, required_attrs=[], optional_attrs=[], &block
-          define_method name do |attrs|
+          define_method name do |attrs, &method_block|
             camelize_and_ensure_keys! attrs.update(default_attributes), required_attrs, optional_attrs
-            query :post, name.to_s.camelize, attrs, &block
+
+            [:amount, :amountTot].each do |key|
+              attrs[key] = sprintf("%.2f",attrs[key]) if attrs.has_key?(key)
+            end
+
+            [:updateDate].each do |key|
+              attrs[key] = attrs[key].utc.to_i.to_s if attrs.has_key?(key)
+            end
+
+            result = query :post, name.to_s.camelize, attrs, &block
+            method_block ? method_block.call(result) : result
           end
         end
       end
@@ -155,7 +182,7 @@ module LemonWay
       #  - :msg     [Number] Commentaire ex : Commande numéro 245
       #  - :status  Non utilisé dans le kit MARQUE BLANCHE
       define_query_method :money_in, %i(wallet cardType cardNumber cardCrypto cardDate amountTot), %i(amountCom message) do |response|
-        block ? block.call(response["trans"]["hpay"]) : response["trans"]["hpay"]
+        response["trans"]["hpay"]
       end
 
       #Initialisation crédit de wallet par CB 3D-Secure
@@ -266,17 +293,13 @@ module LemonWay
       #  - :com [Number] Commission de la demande, ex: 0.00
       #  - :msg [String] Commentaire de la demande, ex: Commande numéro 245
       #  - :status [String] Non utilisé dans le kit MARCHAND
-      define_query_method :send_payment, %i(debitWallet creditWallet amount), %i(message) do |response|
+      define_query_method :send_payment, %i(debitWallet creditWallet amount message) do |response|
         response["trans"]["hpay"]
       end
 
-      #Pré-enregistrement d’IBAN
-      define_query_method :register_iban, %i(wallet holder bic iban dom1 dom2) do |response|
-        response[:iban][:s]
-      end
 
       #Virement
-      define_query_method :money_out, %i(wallet amountTot), %i(amountCom message desc) do |response|
+      define_query_method :money_out, %i(wallet amountTot), %i(amountCom message desc ibanID) do |response|
         response[:trans][:hpay]
       end
 
@@ -298,6 +321,29 @@ module LemonWay
         response[:trans][:hpay]
       end
 
+      define_query_method :upload_file, %i(wallet fileName type buffer) do |response|
+        response[:upload][:id]
+      end
+
+      define_query_method :get_kyc_status, %i(updateDate) do |response|
+        if response[:wallets].has_key? :wallet
+          Array.wrap(response[:wallets][:wallet]).flatten
+        else
+          []
+        end
+      end
+
+      define_query_method :registerIBAN, %i(wallet holder bic iban dom1 dom2) do |response|
+        response[:iban]
+      end
+
+      define_query_method :getMoneyInIBANDetails, %i(updateDate) do |response|
+        if response[:trans].has_key? :hpay
+          Array.wrap(response[:trans][:hpay]).flatten
+        else
+          []
+        end
+      end
     end
     module WebMerchant
       include Base
@@ -312,3 +358,4 @@ module LemonWay
     end
   end
 end
+
