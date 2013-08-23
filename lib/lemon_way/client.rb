@@ -338,7 +338,7 @@ module LemonWay
       end
 
       define_query_method :getMoneyInIBANDetails, %i(updateDate) do |response|
-        if response[:trans].has_key? :hpay
+        if response[:trans] and response[:trans].has_key? :hpay
           Array.wrap(response[:trans][:hpay]).flatten
         else
           []
