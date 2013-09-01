@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = LemonWay::VERSION
   spec.authors       = ["Itkin"]
   spec.email         = ["nicolas.papon@webflows.fr"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = "Describe me"
+  spec.summary       = "Describe me"
   spec.homepage      = ""
   spec.license       = "MIT"
 
