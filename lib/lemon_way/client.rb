@@ -326,7 +326,7 @@ module LemonWay
       end
 
       define_query_method :get_kyc_status, %i(updateDate) do |response|
-        if response[:wallets].has_key? :wallet
+        if response[:wallets] and response[:wallets].has_key? :wallet
           Array.wrap(response[:wallets][:wallet]).flatten
         else
           []
