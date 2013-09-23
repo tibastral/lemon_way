@@ -68,7 +68,7 @@ module LemonWay
           define_method name do |attrs, &method_block|
             camelize_and_ensure_keys! attrs.update(default_attributes), required_attrs, optional_attrs
 
-            [:amount, :amountTot].each do |key|
+            [:amount, :amountTot, :amountCom].each do |key|
               attrs[key] = sprintf("%.2f",attrs[key]) if attrs.has_key?(key)
             end
 
