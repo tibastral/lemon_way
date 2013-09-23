@@ -311,13 +311,13 @@ module LemonWay
 
       # Rechercher un money-in
       # @return [Array (HashWithIndifferentAccess{key => String, Number})]
-      define_query_method :get_money_in_details, %i(), %i(transactionId transactionComment) do |response|
+      define_query_method :get_money_in_trans_details, %i(), %i(transactionId transactionComment) do |response|
         response[:trans][:hpay]
       end
 
       #  Rechercher un money-out
       # @return [Array (HashWithIndifferentAccess{key => String, Number})]
-      define_query_method :get_money_out_details, %i(), %i(transactionId transactionComment) do |response|
+      define_query_method :get_money_out_trans_details, %i(), %i(transactionId transactionComment) do |response|
         response[:trans][:hpay]
       end
 
