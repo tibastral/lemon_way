@@ -116,7 +116,7 @@ module LemonWay
       extend self
       include HTTParty
 
-      self.default_timeout 180
+
 
       self.required_default_attributes = %i(wlLogin wlPass wlPDV version language channel walletIp)
       self.optional_default_attributes = %i(format model walletUa)
@@ -351,7 +351,7 @@ module LemonWay
       include Base
       extend self
       include HTTParty
-      self.default_timeout 180
+
 
       self.optional_default_attributes = %i()
       self.required_default_attributes = %i()
