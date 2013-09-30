@@ -116,8 +116,6 @@ module LemonWay
       extend self
       include HTTParty
 
-
-
       self.required_default_attributes = %i(wlLogin wlPass wlPDV version language channel walletIp)
       self.optional_default_attributes = %i(format model walletUa)
 
@@ -130,7 +128,7 @@ module LemonWay
       #* L’application traite la réponse de Lemon Way et affiche un message de confirmation
       #@param attrs [Hash{String, Symbol => String, Number}]
       #@return [String] Identifiant du wallet inscrit avec succès, ex: ￼￼336123456 78
-      define_query_method :register_wallet, %i(wallet clientMail clientFirstName clientLastName), %i(clientTitle clientHandset) do |response|
+      define_query_method :register_wallet, %i(wallet clientMail clientFirstName clientLastName), %i(clientTitle clientHandset ctry) do |response|
         response[:wallet][:id]
       end
 
