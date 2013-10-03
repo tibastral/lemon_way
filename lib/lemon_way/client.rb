@@ -43,7 +43,7 @@ module LemonWay
       end
 
       def query(type, method, attrs={})
-        response = send(type, "", :body => make_body(method, attrs), :format => :xml, :headers => {'Content-type' => 'text/xml'}) || {}
+        response = send(type, "", :body => make_body(method, attrs), :format => :xml, :headers => {'Content-type' => 'text/xml; charset=utf-8'}) || {}
 
         response_body = Hash.from_xml(response.body.gsub("xmlns=\"Service_mb\"",''))["Envelope"]["Body"]["#{method}Response"]["#{method}Result"]
         response_body = Hash.from_xml(response_body).with_indifferent_access.underscore_keys(true)
