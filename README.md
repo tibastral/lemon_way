@@ -22,13 +22,23 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-LemonWay::Client::WhiteLabel.init   wl_login: "test",
+LemonWay::Client::WhiteLabel.init   base_uri: "https://ws.lemonway.fr/mb/test/dev/directkit/service.asmx",
+                                    wl_login: "test",
                                     wl_pass: "test",
                                     wl_PDV: "test",
                                     language: "fr",
-                                    version: "1.0"
+                                    version: "1.0",
+                                    channel: "W",
+                                    wallet_ip: "1.1.1.1"                                   
 
-LemonWay::Client::WhiteLabel.register_wallet my_hash
+register_wallet_params =          { wallet: "123456789", 
+                                    client_mail: "test@test.com", 
+                                    client_title: "M", 
+                                    client_first_name: "Martin", 
+                                    client_last_name: "Dupont" 
+                                  }
+
+LemonWay::Client::WhiteLabel.register_wallet register_wallet_params
 ```
 
 See [this page](http://rubydoc.info/github/Paymium/lemon_way/LemonWay/Client/WhiteLabel) for details.
