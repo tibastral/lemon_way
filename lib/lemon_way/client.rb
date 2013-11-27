@@ -344,6 +344,34 @@ module LemonWay
           []
         end
       end
+      
+      # RefundMoneyIn : remboursement carte
+      #
+      #Avec la méthode « RefundMoneyIn », le système peut envoyer une demande de remboursement d’une acquisition carte. Les règles suivantes sont appliquées :
+      #* Le remboursement s’effectuera sur la carte ayant servi à l’acquisition initiale.
+      #* La commission prélevée par Lemon Way à l’acquisition ne sera pas remboursée à la MARQUE BLANCHE
+      #* Si aucun montant n’est précisé, le remboursement se fait sur le montant total de l’acquisition initiale.
+      #* Le WALLET du CLIENT sur lequel a eu lieu le moneyIn initial sera débité du montant à rembourser. Si le solde du WALLET CLIENT est insuffisant, un paiement automatique sera effectué au préalable, du WALLET de la MARQUE BLANCHE vers le WALLET CLIENT.
+      #* Avec le remboursement partiel de la version 1.1, il est possible de cumuler les remboursements en plusieurs fois, jusqu’à ce que le montant de l’acquisition initiale soit atteint.
+      #
+      #@param attrs [Hash{String, Symbol => String, Number}]
+      #   - :transactionId* Identifiant du moneyIn à rembourser, [0 : 10] car, ex: 176
+      #   - :comment Commentaire sur le remboursement, [0 :140] car, ex: Commande numéro 245
+      #   - :amountToRefund Montant à rembourser. Si vide, le montant total sera remboursé, 2 décimales, ex : 15.00
+      #@return [HashWithIndifferentAccess{key => String, Number}]
+      #  - :id [String] Identifiant du money-in annulé, ex : 255
+      #  - :date [String] Date du money-in annulé, ex : 10/09/2011 18:09:27
+      #  - :sen [String] Wallet débité, ex : Pizza56
+      #  - :rec [String] Vide dans ce cas
+      #  - :deb [Number] Montant débité du wallet, ex: 15.00
+      #  - :cred [Number] 0 dans ce cas ex: 0.00
+      #  - :com [Number] Commission prélevée par la MARQUE BLANCHE. 0 dans ce cas, ex: 0.00
+      #  - :msg [String] Commentaire de la demande, ex: Commande numéro 245
+      #  - :status [String] Non utilisé dans le kit MARQUE BLANCHE
+      define_query_method :refund_money_in, %i(transactionId), %i(comment amountToRefund) do |response|
+        response[:trans][:hpay]
+      end      
+      
     end
     module WebMerchant
       include Base
