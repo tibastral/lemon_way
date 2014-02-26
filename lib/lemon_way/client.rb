@@ -266,9 +266,9 @@ module LemonWay
       # - :cardId*     [String] Identifiant de la carte bancaire associée au wallet, [0 : 256] car
       # - :amountTot*  [Number] Montant à débiter de la CB
       # - :amountCom   [Number] Montant que la MARQUE BLANCHE souhaite prélever
-      # - :message     [String] Commentaire du paiement
+      # - :comment     [String] Commentaire du paiement
       #@return [HashWithIndifferentAccess{key => String, Number}]
-      define_query_method :money_in_with_card_id, %i(wallet cardId amountTot), %i(amountCom message) do |response|
+      define_query_method :money_in_with_card_id, %i(wallet cardId amountTot), %i(amountCom comment) do |response|
         response[:trans][:hpay]
       end
 
