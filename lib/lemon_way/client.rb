@@ -1,13 +1,12 @@
 require "active_support/core_ext/hash"
 require 'active_support/builder'
-require "httparty"
-
+require 'rest_client'
 
 module LemonWay
   module Client
     module Base
 
-      attr_accessor :default_attributes, :required_default_attributes, :optional_default_attributes
+      attr_accessor :default_attributes, :required_default_attributes, :optional_default_attributes, :base_url
 
       class Error < Exception
         attr_reader :code
@@ -20,7 +19,9 @@ module LemonWay
 
       def init(opts={})
         opts.symbolize_keys!.camelize_keys!.ensure_keys %i(baseUri), required_default_attributes + optional_default_attributes
-        self.base_uri opts.delete(:baseUri)
+        self.base_url = opts.delete(:baseUri)
+        self.base_uri base_url
+        RestClient.proxy = opts.delete(:proxyUrl)
         self.default_attributes =  opts
       end
 
@@ -43,8 +44,13 @@ module LemonWay
       end
 
       def query(type, method, attrs={})
-        response = send(type, "", :body => make_body(method, attrs), :format => :xml, :headers => {'Content-type' => 'text/xml; charset=utf-8'}) || {}
-
+        response = RestClient.post(
+          @base_url,
+          make_body(method, attrs),
+          format: :xml,
+          content_type: 'text/xml',
+          charset: 'utf-8'
+        ) || {}
         response_body = Hash.from_xml(response.body.gsub("xmlns=\"Service_mb\"",''))["Envelope"]["Body"]["#{method}Response"]["#{method}Result"]
         response_body = Hash.from_xml(response_body).with_indifferent_access.underscore_keys(true)
 
@@ -116,7 +122,7 @@ module LemonWay
       extend self
       include HTTParty
 
-      self.required_default_attributes = %i(wlLogin wlPass wlPDV version language channel walletIp)
+      self.required_default_attributes = %i(wlLogin wlPass wlPDV version language channel walletIp proxyUrl)
       self.optional_default_attributes = %i(format model walletUa)
 
       format :xml
@@ -344,7 +350,7 @@ module LemonWay
           []
         end
       end
-      
+
       # RefundMoneyIn : remboursement carte
       #
       #Avec la méthode « RefundMoneyIn », le système peut envoyer une demande de remboursement d’une acquisition carte. Les règles suivantes sont appliquées :
@@ -370,8 +376,8 @@ module LemonWay
       #  - :status [String] Non utilisé dans le kit MARQUE BLANCHE
       define_query_method :refund_money_in, %i(transactionId), %i(comment amountToRefund) do |response|
         response[:trans][:hpay]
-      end      
-      
+      end
+
     end
     module WebMerchant
       include Base
